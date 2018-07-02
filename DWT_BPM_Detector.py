@@ -10,7 +10,7 @@ def read_wav(filename):
     try:
         wf = wave.open(filename,'rb')
     except IOError:
-        print(e)
+        #print(e)
         return
 
     # typ = choose_type( wf.getsampwidth() ) #TODO: implement choose_type
@@ -27,6 +27,7 @@ def read_wav(filename):
         assert(nsamps == len(samps))
     except AssertionError:
         print(nsamps, "not equal to", len(samps))
+    #print(samps,fs)
     return(samps, fs)
 
 # print an error when no data can be found
@@ -52,12 +53,14 @@ def bpm_detector(data,fs):
     min_ndx = 60./ 220 * (fs/max_decimation)
     max_ndx = 60./ 40 * (fs/max_decimation)
 
+
+
     for loop in range(0,levels):
         cD = []
         # 1) DWT
         if loop == 0:
             [cA,cD] = pywt.dwt(data,'db4');
-            cD_minlen = len(cD)/max_decimation+1;
+            cD_minlen = (int(len(cD)/max_decimation+1));
             cD_sum = numpy.zeros(cD_minlen);
         else:
             [cA,cD] = pywt.dwt(cA,'db4');
@@ -85,10 +88,11 @@ def bpm_detector(data,fs):
 
     # ACF
     correl = numpy.correlate(cD_sum,cD_sum,'full')
+    #print(correl)
 
     midpoint = len(correl) / 2
-    correl_midpoint_tmp = correl[midpoint:]
-    peak_ndx = peak_detect(correl_midpoint_tmp[min_ndx:max_ndx]);
+    correl_midpoint_tmp = correl[int(midpoint):]
+    peak_ndx = peak_detect(correl_midpoint_tmp[int(min_ndx):int(max_ndx)]);
     if len(peak_ndx) > 1:
         return no_audio_data()
 
